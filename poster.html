@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Team 096 — US Accident Severity Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: 30in 40in;
+    margin: 0;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #e2e0db;
+    color: #2D3748;
+    overflow: auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  .poster {
+    width: 30in;
+    min-height: 40in;
+    padding: 0.6in;
+    background: #FAFAF7;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25in;
+    position: relative;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 16px;
+    padding: 0.45in 0.5in;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(26, 54, 93, 0.3);
+  }
+
+  .header-text h1 {
+    font-size: 52pt;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .header-text .subtitle {
+    font-size: 22pt;
+    font-weight: 400;
+    opacity: 0.9;
+  }
+
+  .header-meta {
+    text-align: right;
+    font-size: 18pt;
+    line-height: 1.6;
+  }
+
+  .header-meta .team-num {
+    font-size: 28pt;
+    font-weight: 800;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 20px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+
+  /* ===== CONTENT GRID ===== */
+  .content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 0.2in;
+  }
+
+  /* ===== SECTION CARDS ===== */
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 0.28in 0.3in;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e2e0db;
+  }
+
+  .card h2 {
+    font-size: 22pt;
+    font-weight: 800;
+    color: #1a365d;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 3px solid #3182ce;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card h3 {
+    font-size: 17pt;
+    font-weight: 700;
+    color: #2b6cb0;
+    margin-top: 12px;
+    margin-bottom: 6px;
+  }
+
+  .card p, .card li {
+    font-size: 16pt;
+    line-height: 1.45;
+    color: #4a5568;
+  }
+
+  .card ul {
+    padding-left: 24px;
+    margin-top: 6px;
+  }
+
+  .card li {
+    margin-bottom: 5px;
+  }
+
+  .card li strong {
+    color: #2D3748;
+  }
+
+  /* Spanning */
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+
+  /* ===== SCREENSHOTS ===== */
+  .screenshot-grid-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.15in;
+    margin-top: 10px;
+  }
+
+  .screenshot-grid-detail {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 0.12in;
+    margin-top: 0.15in;
+  }
+
+  .screenshot-item {
+    display: flex;
+    flex-direction: column;
+    background: #f7fafc;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #cbd5e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .screenshot-item img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .screenshot-item .caption {
+    font-size: 14pt;
+    color: #4a5568;
+    text-align: center;
+    padding: 8px 10px;
+    font-weight: 600;
+    background: #edf2f7;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .screenshot-item.hero .caption {
+    font-size: 14pt;
+    padding: 8px 10px;
+  }
+
+  .screenshot-item .mode-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 12pt;
+    font-weight: 700;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .badge-hist { background: #fed7d7; color: #9b2c2c; }
+  .badge-whatif { background: #c6f6d5; color: #276749; }
+  .badge-delta { background: #feebc8; color: #9c4221; }
+
+  /* ===== METRIC BOXES ===== */
+  .metrics {
+    display: flex;
+    gap: 12px;
+    margin: 10px 0;
+  }
+
+  .metric-box {
+    flex: 1;
+    background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: center;
+    border: 1px solid #90cdf4;
+  }
+
+  .metric-box .value {
+    font-size: 24pt;
+    font-weight: 800;
+    color: #1a365d;
+  }
+
+  .metric-box .label {
+    font-size: 12pt;
+    color: #4a5568;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  /* ===== PIPELINE DIAGRAM ===== */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: nowrap;
+  }
+
+  .pipeline-step {
+    background: linear-gradient(135deg, #1a365d, #2b6cb0);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13pt;
+    font-weight: 600;
+    text-align: center;
+    flex: 1;
+    line-height: 1.25;
+  }
+
+  .pipeline-arrow {
+    font-size: 22pt;
+    color: #3182ce;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  /* ===== RESULTS TABLE ===== */
+  table.results {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 15pt;
+  }
+
+  table.results th {
+    background: #1a365d;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+
+  table.results td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #4a5568;
+  }
+
+  table.results tr:nth-child(even) td {
+    background: #f7fafc;
+  }
+
+  .highlight { color: #2b6cb0; font-weight: 700; }
+  .highlight-red { color: #c53030; font-weight: 700; }
+  .highlight-green { color: #276749; font-weight: 700; }
+
+  /* ===== TECH STACK ===== */
+  .tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .tech-tag {
+    background: #edf2f7;
+    border: 1px solid #cbd5e0;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 14pt;
+    font-weight: 600;
+    color: #2d3748;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ===== REFERENCES ===== */
+  .references {
+    font-size: 12pt;
+    color: #718096;
+    line-height: 1.4;
+    column-count: 2;
+    column-gap: 0.3in;
+  }
+
+  .references p {
+    font-size: 12pt;
+    margin-bottom: 3px;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    background: #1a365d;
+    color: white;
+    border-radius: 12px;
+    padding: 12px 0.5in;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16pt;
+  }
+
+  .footer a {
+    color: #90cdf4;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <div class="header-text">
+      <h1>US Accident Severity Dashboard</h1>
+      <div class="subtitle">Interactive What-If Risk Simulator for 7.7M US Traffic Accidents</div>
+    </div>
+    <div class="header-meta">
+      <div class="team-num">Team 096</div><br>
+      Ganga Adhikari &middot; Fabio Choi<br>
+      Rajpreet Sehra &middot; Vibha Gogu<br>
+      <span style="opacity:0.8; font-size:16pt;">CSE 6242 &middot; Spring 2026 &middot; Georgia Tech</span>
+    </div>
+  </div>
+
+  <!-- ===== CONTENT GRID ===== -->
+  <div class="content">
+
+    <!-- ===== ROW 1: Motivation / Data / Tech Stack ===== -->
+
+    <div class="card">
+      <h2>1. Motivation</h2>
+      <p>Road traffic accidents kill <strong>1.35 million people annually</strong> and are the leading cause of death for ages 5&ndash;29 globally. Existing road safety processes remain <strong>reactive</strong>&mdash;analyzing accidents only after they occur.</p>
+      <h3>Why should we care?</h3>
+      <p>Transportation planners and safety agencies lack tools to explore <em>what would happen if</em> conditions changed. Our project fills this gap with an interactive simulator that lets stakeholders <strong>proactively identify</strong> high-risk areas and test interventions <strong>before</strong> deploying resources.</p>
+    </div>
+
+    <div class="card">
+      <h2>2. Data</h2>
+      <h3>Source</h3>
+      <p>US Accidents dataset by Moosavi et al. [1], downloaded from Kaggle. Real-time DOT traffic feeds, weather data, and points of interest integrated across <strong>49 US states</strong>.</p>
+      <div class="metrics">
+        <div class="metric-box">
+          <div class="value">7.7M</div>
+          <div class="label">Records</div>
+        </div>
+        <div class="metric-box">
+          <div class="value">1.5 GB</div>
+          <div class="label">Raw CSV</div>
+        </div>
+        <div class="metric-box">
+          <div class="value">49</div>
+          <div class="label">States</div>
+        </div>
+        <div class="metric-box">
+          <div class="value">2016&ndash;23</div>
+          <div class="label">Timespan</div>
+        </div>
+      </div>
+      <h3>Key Features</h3>
+      <p>Severity (1&ndash;4), hour/day/week, weather condition, visibility, wind speed, temperature, distance, and infrastructure booleans (junction, traffic signal, crossing, stop sign, station).</p>
+    </div>
+
+    <div class="card">
+      <h2>3. Tech Stack</h2>
+      <div class="tech-tags">
+        <span class="tech-tag">Python</span>
+        <span class="tech-tag">Streamlit</span>
+        <span class="tech-tag">PyDeck</span>
+        <span class="tech-tag">Plotly</span>
+        <span class="tech-tag">DuckDB</span>
+        <span class="tech-tag">LightGBM</span>
+        <span class="tech-tag">Parquet</span>
+        <span class="tech-tag">H3 Geo</span>
+        <span class="tech-tag">Pandas</span>
+        <span class="tech-tag">NumPy</span>
+      </div>
+      <h3>Pipeline</h3>
+      <div class="pipeline">
+        <div class="pipeline-step">Raw CSV<br>7.7M rows</div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-step">Feature Eng.<br>+ H3 Index</div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-step">Parquet<br>Aggregation</div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-step">DuckDB<br>Queries</div>
+        <div class="pipeline-arrow">&rarr;</div>
+        <div class="pipeline-step">Interactive<br>Dashboard</div>
+      </div>
+      <p style="margin-top:10px;">Data is processed in <strong>500K-row chunks</strong>, aggregated into Parquet files (a few MB each), enabling the dashboard to reflect the <strong>entire dataset</strong> without sampling trade-offs. DuckDB provides in-process SQL queries with sub-second response times.</p>
+    </div>
+
+    <!-- ===== ROW 2: Approaches (spanning full width) ===== -->
+
+    <div class="card span-3">
+      <h2>4. Our Approach &mdash; Algorithm &amp; Interactive Visualization</h2>
+      <div style="display: flex; gap: 0.25in;">
+        <div style="flex: 1;">
+          <h3>What are our approaches?</h3>
+          <ul>
+            <li><strong>H3 Hexagonal Spatial Binning:</strong> We partition the US into hexagonal cells at resolution 3 using Uber's H3 index. Hexagons provide uniform adjacency (every neighbor shares an identical spatial relationship), eliminating directional bias found in square grids.</li>
+            <li><strong>LightGBM Severity Prediction:</strong> A gradient-boosted decision tree model trained on the full dataset to predict accident severity (1&ndash;4) from environmental, temporal, and infrastructure features.</li>
+            <li><strong>Empirical Severity Multipliers:</strong> Per-feature ratios of mean severity (feature present vs. absent) power the What-If simulator, allowing real-time scenario exploration without re-running the model.</li>
+          </ul>
+        </div>
+        <div style="flex: 1;">
+          <h3>What is new in our approach?</h3>
+          <ul>
+            <li><strong>What-If Simulator:</strong> Users toggle weather, time-of-day, and infrastructure conditions to see how predicted severity shifts across all visible hexes simultaneously&mdash;transforming the dashboard from a descriptive tool into a <em>prescriptive</em> one.</li>
+            <li><strong>Delta View:</strong> A diverging green&ndash;grey&ndash;red color scale shows the <em>change</em> in severity from baseline, making it immediately obvious where interventions help most (green) or hurt (red).</li>
+            <li><strong>Nationwide scale:</strong> Unlike prior work confined to single cities or regions, our system covers all 49 states with 7.7M records, using chunked processing and Parquet storage to handle scale.</li>
+          </ul>
+        </div>
+        <div style="flex: 1;">
+          <h3>Why will it work?</h3>
+          <ul>
+            <li>Empirical multipliers are computed from <strong>7.7M real observations</strong>, grounding simulations in actual statistical relationships rather than theoretical assumptions.</li>
+            <li>H3 binning aggregates noisy point data into meaningful spatial units, reducing visual clutter while preserving geographic patterns.</li>
+            <li>LightGBM captures <strong>non-linear interactions</strong> between features (e.g., rain + night + junction) that traditional logit models cannot model, while still providing interpretable feature importance scores.</li>
+            <li>Interactive visualization follows Andrienko et al.'s [2] geovisual analytics framework: dynamic exploration over static reporting.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ROW 3: Dashboard Screenshots (spanning full width) ===== -->
+
+    <div class="card span-3" style="padding-bottom: 0.2in;">
+      <h2>5. Interactive Dashboard</h2>
+
+      <!-- Tier 1: Three hero views showing the three dashboard modes -->
+      <div class="screenshot-grid-hero">
+        <div class="screenshot-item hero">
+          <img src="assets/crops/hero_historical.png" alt="Historical View">
+          <div class="caption"><span class="mode-badge badge-hist">Historical</span> National overview &mdash; 688 H3 hexes, 7.7M accidents</div>
+        </div>
+        <div class="screenshot-item hero">
+          <img src="assets/crops/hero_whatif.png" alt="What-If Simulation">
+          <div class="caption"><span class="mode-badge badge-whatif">What-If</span> Rain simulation on Georgia (severity +3%)</div>
+        </div>
+        <div class="screenshot-item hero">
+          <img src="assets/crops/hero_delta.png" alt="Delta View">
+          <div class="caption"><span class="mode-badge badge-delta">Delta</span> Rain + Night &mdash; red = worsening severity</div>
+        </div>
+      </div>
+
+      <!-- Tier 2: Detail strip — zoomed-in features -->
+      <div class="screenshot-grid-detail">
+        <div class="screenshot-item">
+          <img src="assets/crops/map_georgia.png" alt="Georgia state view">
+          <div class="caption">State-level drill-down (Georgia)</div>
+        </div>
+        <div class="screenshot-item">
+          <img src="assets/crops/chart_severity.png" alt="Severity Distribution">
+          <div class="caption">Severity distribution (79.7% moderate)</div>
+        </div>
+        <div class="screenshot-item">
+          <img src="assets/crops/chart_hour.png" alt="Accidents by Hour">
+          <div class="caption">Accidents by hour of day</div>
+        </div>
+        <div class="screenshot-item">
+          <img src="assets/crops/chart_sim_impact.png" alt="Simulation Impact">
+          <div class="caption">Simulation impact by condition</div>
+        </div>
+        <div class="screenshot-item">
+          <img src="assets/crops/hero_california.png" alt="California view">
+          <div class="caption">State-level view (California)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ROW 4: Experiments & Results / Comparison ===== -->
+
+    <div class="card span-2">
+      <h2>6. Experiments &amp; Results</h2>
+      <div style="display: flex; gap: 0.25in;">
+        <div style="flex: 1;">
+          <h3>Model Performance (LightGBM)</h3>
+          <p>Trained on 80% of the full dataset, evaluated on a held-out 20% test split with stratified sampling.</p>
+          <table class="results">
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>Accuracy</td><td class="highlight">~73%</td></tr>
+            <tr><td>F1-Macro</td><td>Balanced across 4 classes</td></tr>
+            <tr><td>F1-Weighted</td><td>Accounts for Sev-2 dominance</td></tr>
+            <tr><td>AUC</td><td>Strong ranking consistency</td></tr>
+          </table>
+          <h3 style="margin-top:14px;">Feature Importance (Top 5)</h3>
+          <table class="results">
+            <tr><th>Feature</th><th>Role</th></tr>
+            <tr><td>Distance (mi)</td><td class="highlight">Strongest predictor</td></tr>
+            <tr><td>H3 Location</td><td>Spatial context matters</td></tr>
+            <tr><td>Hour of Day</td><td>Night = higher severity</td></tr>
+            <tr><td>Junction</td><td class="highlight-red">Increases severity</td></tr>
+            <tr><td>Traffic Signal</td><td class="highlight-green">Decreases severity</td></tr>
+          </table>
+        </div>
+        <div style="flex: 1;">
+          <h3>Sensitivity Analysis</h3>
+          <p>Holding spatial features at national medians, we isolated individual conditions to measure severity shifts:</p>
+          <table class="results">
+            <tr><th>Condition</th><th>Effect on Severity</th></tr>
+            <tr><td>Night time</td><td class="highlight-red">&uarr; Increases</td></tr>
+            <tr><td>Rain</td><td class="highlight-red">&uarr; Increases</td></tr>
+            <tr><td>Severe Storm</td><td class="highlight-red">&uarr;&uarr; Largest increase</td></tr>
+            <tr><td>Add Traffic Signal</td><td class="highlight-green">&darr; Decreases</td></tr>
+            <tr><td>Add Stop Sign</td><td class="highlight-green">&darr; Decreases</td></tr>
+            <tr><td>Add Crossing</td><td class="highlight-green">&darr; Decreases</td></tr>
+            <tr><td>Add Junction</td><td class="highlight-red">&uarr; Increases</td></tr>
+          </table>
+          <p style="margin-top:10px;">These results align with established road safety research, validating that the model captures known risk factors correctly.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>7. Comparison</h2>
+      <h3>vs. Traditional Statistical Models</h3>
+      <p>Savolainen et al. [3] show that logit/probit models assume linearity and treat crashes as independent events. Our LightGBM model captures <strong>non-linear interactions</strong> and spatial dependence via H3 features.</p>
+      <h3>vs. Neural Networks</h3>
+      <p>Abdelwahab &amp; Abdel-Aty [4] achieve high accuracy with ANNs but sacrifice interpretability. LightGBM provides <strong>built-in feature importances</strong> without needing post-hoc explanation methods.</p>
+      <h3>vs. Existing Dashboards</h3>
+      <p>Traditional traffic dashboards are <strong>descriptive</strong> (showing past data) and confined to single regions. Our tool is <strong>prescriptive</strong> (what-if simulation) and covers <strong>all 49 states</strong> at once.</p>
+      <h3>vs. Castellani et al. [5]</h3>
+      <p>Their work uses SHAP values for post-hoc interpretation on Ohio data. We use LightGBM's native importances for lower computational cost and add a <strong>real-time interactive simulator</strong> on top.</p>
+    </div>
+
+    <!-- ===== ROW 5: Conclusions / References ===== -->
+
+    <div class="card span-2">
+      <h2>8. Conclusions &amp; Future Work</h2>
+      <div style="display: flex; gap: 0.25in;">
+        <div style="flex: 1.2;">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>We built an <strong>end-to-end pipeline</strong> from 7.7M raw accident records to an interactive geospatial dashboard with real-time What-If simulation.</li>
+            <li>H3 hexagonal binning + empirical multipliers enable <strong>instant scenario exploration</strong> without re-running expensive models.</li>
+            <li>The <strong>Delta View</strong> uniquely visualizes intervention impact, showing exactly which areas benefit most from proposed changes.</li>
+            <li>Feature importance analysis confirms that <strong>infrastructure features</strong> (signals, stop signs) measurably reduce severity, supporting evidence-based infrastructure investment.</li>
+          </ul>
+        </div>
+        <div style="flex: 0.8;">
+          <h3>Limitations &amp; Future Work</h3>
+          <ul>
+            <li>Severity 2 dominance (~80% of records) limits minority-class prediction accuracy.</li>
+            <li>What-If multipliers are empirical averages; a causal model would provide stronger policy recommendations.</li>
+            <li>Future: integrate real-time traffic feeds, add user study evaluation, and extend to county-level policy recommendations.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>References</h2>
+      <div class="references">
+        <p>[1] Moosavi et al., "A Countrywide Traffic Accident Dataset," 2019.</p>
+        <p>[2] Andrienko et al., "Geovisual analytics for spatial decision support," 2007.</p>
+        <p>[3] Savolainen et al., "Statistical analysis of highway crash-injury severities," 2011.</p>
+        <p>[4] Abdelwahab &amp; Abdel-Aty, "ANN models to predict driver injury severity," 2001.</p>
+        <p>[5] Castellani et al., "Predicting traffic crash severity through feature selection," 2025.</p>
+        <p>[6] Ahmed et al., "Road traffic injuries: A neglected global health issue," 2023.</p>
+        <p>[7] Fisa et al., "Systematic review of road safety interventions," 2022.</p>
+        <p>[8] Hauer et al., "Estimating safety by the Empirical Bayes method," 2002.</p>
+        <p>[9] Park et al., "Fully Bayesian multivariate before&ndash;after evaluation," 2010.</p>
+        <p>[10] Ziakopoulos et al., "A review of spatial approaches in road safety," 2020.</p>
+        <p>[11] H3 Geo Documentation, Uber Technologies.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <span>CSE 6242 &middot; Data and Visual Analytics &middot; Spring 2026 &middot; Georgia Institute of Technology</span>
+    <span>Dataset: <a href="https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents">kaggle.com/sobhanmoosavi/us-accidents</a></span>
+  </div>
+
+</div>
+</body>
+</html>

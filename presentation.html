@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Team 096 — Poster Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #0a0a0a;
+    font-family: 'Inter', sans-serif;
+  }
+
+  #viewport {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  #poster-wrap {
+    position: absolute;
+    width: 2880px;
+    height: 3840px;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+
+  .poster {
+    width: 2880px;
+    height: 3840px;
+    padding: 58px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: #FAFAF7;
+    position: relative;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 16px;
+    padding: 42px 48px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(26, 54, 93, 0.3);
+  }
+  .header-text h1 { font-size: 64px; font-weight: 900; letter-spacing: -1px; line-height: 1.1; margin-bottom: 8px; }
+  .header-text .subtitle { font-size: 27px; font-weight: 400; opacity: 0.9; }
+  .header-meta { text-align: right; font-size: 22px; line-height: 1.6; }
+  .header-meta .team-num { font-size: 34px; font-weight: 800; background: rgba(255,255,255,0.2); padding: 4px 20px; border-radius: 8px; margin-bottom: 8px; display: inline-block; }
+
+  .content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 20px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 26px 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e2e0db;
+    transition: box-shadow 0.5s ease, border-color 0.5s ease;
+  }
+  .card.active-section {
+    box-shadow: 0 0 40px rgba(49, 130, 206, 0.35);
+    border-color: #3182ce;
+  }
+  .card h2 { font-size: 26px; font-weight: 800; color: #1a365d; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 3px solid #3182ce; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card h3 { font-size: 20px; font-weight: 700; color: #2b6cb0; margin-top: 12px; margin-bottom: 6px; }
+  .card p, .card li { font-size: 19px; line-height: 1.45; color: #4a5568; }
+  .card ul { padding-left: 24px; margin-top: 6px; }
+  .card li { margin-bottom: 5px; }
+  .card li strong { color: #2D3748; }
+
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+
+  .screenshot-grid-hero { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 10px; }
+  .screenshot-grid-detail { display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-rows: 1fr; gap: 12px; margin-top: 14px; }
+  .screenshot-item { display: flex; flex-direction: column; background: #f7fafc; border-radius: 8px; overflow: hidden; border: 2px solid #cbd5e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .screenshot-item img { width: 100%; display: block; object-fit: cover; }
+  .screenshot-grid-hero .screenshot-item img { aspect-ratio: 16 / 10; }
+  .screenshot-grid-detail .screenshot-item img { aspect-ratio: 3 / 2; object-fit: cover; object-position: center top; }
+  .screenshot-item .caption { font-size: 14px; color: #4a5568; text-align: center; padding: 6px 8px; font-weight: 600; background: #edf2f7; border-top: 1px solid #e2e8f0; }
+  .screenshot-item.hero .caption { font-size: 16px; padding: 8px 10px; }
+  .screenshot-item .mode-badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; margin-right: 6px; vertical-align: middle; }
+  .badge-hist { background: #fed7d7; color: #9b2c2c; }
+  .badge-whatif { background: #c6f6d5; color: #276749; }
+  .badge-delta { background: #feebc8; color: #9c4221; }
+
+  .metrics { display: flex; gap: 12px; margin: 10px 0; }
+  .metric-box { flex: 1; background: linear-gradient(135deg, #ebf8ff, #bee3f8); border-radius: 8px; padding: 12px 14px; text-align: center; border: 1px solid #90cdf4; }
+  .metric-box .value { font-size: 30px; font-weight: 800; color: #1a365d; }
+  .metric-box .label { font-size: 14px; color: #4a5568; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+
+  .pipeline { display: flex; align-items: center; gap: 8px; margin: 12px 0; flex-wrap: nowrap; }
+  .pipeline-step { background: linear-gradient(135deg, #1a365d, #2b6cb0); color: white; padding: 10px 14px; border-radius: 8px; font-size: 16px; font-weight: 600; text-align: center; flex: 1; line-height: 1.25; }
+  .pipeline-arrow { font-size: 26px; color: #3182ce; font-weight: 800; flex-shrink: 0; }
+
+  table.results { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 18px; }
+  table.results th { background: #1a365d; color: white; padding: 8px 12px; text-align: left; font-weight: 700; }
+  table.results td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; color: #4a5568; }
+  table.results tr:nth-child(even) td { background: #f7fafc; }
+  .highlight { color: #2b6cb0; font-weight: 700; }
+  .highlight-red { color: #c53030; font-weight: 700; }
+  .highlight-green { color: #276749; font-weight: 700; }
+
+  .tech-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .tech-tag { background: #edf2f7; border: 1px solid #cbd5e0; padding: 5px 14px; border-radius: 20px; font-size: 17px; font-weight: 600; color: #2d3748; font-family: 'JetBrains Mono', monospace; }
+
+  .references { font-size: 14px; color: #718096; line-height: 1.4; column-count: 2; column-gap: 28px; }
+  .references p { font-size: 14px; margin-bottom: 3px; }
+
+  .footer { background: #1a365d; color: white; border-radius: 12px; padding: 12px 48px; display: flex; justify-content: space-between; align-items: center; font-size: 19px; }
+  .footer a { color: #90cdf4; text-decoration: none; }
+
+  /* HUD */
+  #hud {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); color: white;
+    padding: 12px 28px; border-radius: 12px; font-size: 15px; z-index: 1000;
+    display: flex; align-items: center; gap: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5); user-select: none;
+  }
+  #hud .step-label { font-weight: 700; color: #90cdf4; font-size: 16px; min-width: 220px; }
+  #hud .timer { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #68d391; min-width: 60px; text-align: center; }
+  #hud .timer.warning { color: #fbd38d; }
+  #hud .timer.danger { color: #fc8181; }
+  #hud .progress-bar { width: 200px; height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; }
+  #hud .progress-fill { height: 100%; background: #90cdf4; border-radius: 3px; transition: width 0.3s ease; }
+  .play-btn { background: #3182ce; color: white; border: none; padding: 6px 16px; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .play-btn:hover { background: #2b6cb0; }
+  .play-btn.playing { background: #c53030; }
+  #hud .nav-hint { color: #a0aec0; font-size: 12px; }
+
+  /* Teleprompter */
+  #teleprompter {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.88); backdrop-filter: blur(12px); color: #e2e8f0;
+    padding: 16px 32px; border-radius: 12px; font-size: 19px; line-height: 1.5;
+    max-width: 860px; text-align: center; z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: opacity 0.4s;
+  }
+  #teleprompter .keyword { color: #90cdf4; font-weight: 700; }
+  #teleprompter .time-hint { display: block; margin-top: 6px; color: #718096; font-size: 13px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div id="viewport">
+  <div id="poster-wrap">
+    <div class="poster">
+
+      <div class="header" data-section="header">
+        <div class="header-text">
+          <h1>US Accident Severity Dashboard</h1>
+          <div class="subtitle">Interactive What-If Risk Simulator for 7.7M US Traffic Accidents</div>
+        </div>
+        <div class="header-meta">
+          <div class="team-num">Team 096</div><br>
+          Ganga Adhikari &middot; Fabio Choi<br>
+          Rajpreet Sehra &middot; Vibha Gogu<br>
+          <span style="opacity:0.8; font-size:19px;">CSE 6242 &middot; Spring 2026 &middot; Georgia Tech</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="card" data-section="motivation">
+          <h2>1. Motivation</h2>
+          <p>Road traffic accidents kill <strong>1.35 million people annually</strong> and are the leading cause of death for ages 5&ndash;29 globally. Existing road safety processes remain <strong>reactive</strong>&mdash;analyzing accidents only after they occur.</p>
+          <h3>Why should we care?</h3>
+          <p>Transportation planners and safety agencies lack tools to explore <em>what would happen if</em> conditions changed. Our project fills this gap with an interactive simulator that lets stakeholders <strong>proactively identify</strong> high-risk areas and test interventions <strong>before</strong> deploying resources.</p>
+        </div>
+
+        <div class="card" data-section="data">
+          <h2>2. Data</h2>
+          <h3>Source</h3>
+          <p>US Accidents dataset by Moosavi et al. [1], downloaded from Kaggle. Real-time DOT traffic feeds, weather data, and points of interest integrated across <strong>49 US states</strong>.</p>
+          <div class="metrics">
+            <div class="metric-box"><div class="value">7.7M</div><div class="label">Records</div></div>
+            <div class="metric-box"><div class="value">1.5 GB</div><div class="label">Raw CSV</div></div>
+            <div class="metric-box"><div class="value">49</div><div class="label">States</div></div>
+            <div class="metric-box"><div class="value">2016&ndash;23</div><div class="label">Timespan</div></div>
+          </div>
+          <h3>Key Features</h3>
+          <p>Severity (1&ndash;4), hour/day/week, weather condition, visibility, wind speed, temperature, distance, and infrastructure booleans (junction, traffic signal, crossing, stop sign, station).</p>
+        </div>
+
+        <div class="card" data-section="techstack">
+          <h2>3. Tech Stack</h2>
+          <div class="tech-tags">
+            <span class="tech-tag">Python</span><span class="tech-tag">Streamlit</span><span class="tech-tag">PyDeck</span><span class="tech-tag">Plotly</span><span class="tech-tag">DuckDB</span><span class="tech-tag">LightGBM</span><span class="tech-tag">Parquet</span><span class="tech-tag">H3 Geo</span><span class="tech-tag">Pandas</span><span class="tech-tag">NumPy</span>
+          </div>
+          <h3>Pipeline</h3>
+          <div class="pipeline">
+            <div class="pipeline-step">Raw CSV<br>7.7M rows</div><div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">Feature Eng.<br>+ H3 Index</div><div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">Parquet<br>Aggregation</div><div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">DuckDB<br>Queries</div><div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">Interactive<br>Dashboard</div>
+          </div>
+          <p style="margin-top:10px;">Data is processed in <strong>500K-row chunks</strong>, aggregated into Parquet files (a few MB each), enabling the dashboard to reflect the <strong>entire dataset</strong> without sampling trade-offs.</p>
+        </div>
+
+        <div class="card span-3" data-section="approaches">
+          <h2>4. Our Approach &mdash; Algorithm &amp; Interactive Visualization</h2>
+          <div style="display: flex; gap: 24px;">
+            <div style="flex: 1;"><h3>What are our approaches?</h3><ul>
+              <li><strong>H3 Hexagonal Spatial Binning:</strong> We partition the US into hexagonal cells at resolution 3. Hexagons provide uniform adjacency, eliminating directional bias found in square grids.</li>
+              <li><strong>LightGBM Severity Prediction:</strong> A gradient-boosted decision tree model trained on the full dataset to predict accident severity (1&ndash;4).</li>
+              <li><strong>Empirical Severity Multipliers:</strong> Per-feature ratios of mean severity power the What-If simulator for real-time scenario exploration.</li>
+            </ul></div>
+            <div style="flex: 1;"><h3>What is new in our approach?</h3><ul>
+              <li><strong>What-If Simulator:</strong> Users toggle conditions to see how severity shifts across all hexes simultaneously&mdash;transforming the tool from <em>descriptive</em> to <em>prescriptive</em>.</li>
+              <li><strong>Delta View:</strong> A diverging green&ndash;grey&ndash;red color scale shows the <em>change</em> in severity from baseline.</li>
+              <li><strong>Nationwide scale:</strong> Covers all 49 states with 7.7M records using chunked processing.</li>
+            </ul></div>
+            <div style="flex: 1;"><h3>Why will it work?</h3><ul>
+              <li>Multipliers computed from <strong>7.7M real observations</strong>, grounding simulations in actual data.</li>
+              <li>H3 binning reduces visual clutter while preserving geographic patterns.</li>
+              <li>LightGBM captures <strong>non-linear interactions</strong> that logit models cannot, with interpretable feature importances.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <div class="card span-3" data-section="dashboard" style="padding-bottom: 20px;">
+          <h2>5. Interactive Dashboard</h2>
+          <div class="screenshot-grid-hero">
+            <div class="screenshot-item hero"><img src="assets/crops/hero_historical.png" alt="Historical"><div class="caption"><span class="mode-badge badge-hist">Historical</span> National overview &mdash; 688 H3 hexes, 7.7M accidents</div></div>
+            <div class="screenshot-item hero"><img src="assets/crops/hero_whatif.png" alt="What-If"><div class="caption"><span class="mode-badge badge-whatif">What-If</span> Rain simulation on Georgia (severity +3%)</div></div>
+            <div class="screenshot-item hero"><img src="assets/crops/hero_delta.png" alt="Delta"><div class="caption"><span class="mode-badge badge-delta">Delta</span> Rain + Night &mdash; red = worsening severity</div></div>
+          </div>
+          <div class="screenshot-grid-detail">
+            <div class="screenshot-item"><img src="assets/crops/map_georgia.png" alt="Georgia"><div class="caption">State-level drill-down (Georgia)</div></div>
+            <div class="screenshot-item"><img src="assets/crops/chart_severity.png" alt="Severity"><div class="caption">Severity distribution (79.7% moderate)</div></div>
+            <div class="screenshot-item"><img src="assets/crops/chart_hour.png" alt="Hour"><div class="caption">Accidents by hour of day</div></div>
+            <div class="screenshot-item"><img src="assets/crops/chart_sim_impact.png" alt="Impact"><div class="caption">Simulation impact by condition</div></div>
+            <div class="screenshot-item"><img src="assets/crops/hero_california.png" alt="California"><div class="caption">State-level view (California)</div></div>
+          </div>
+        </div>
+
+        <div class="card span-2" data-section="results">
+          <h2>6. Experiments &amp; Results</h2>
+          <div style="display: flex; gap: 24px;">
+            <div style="flex: 1;">
+              <h3>Model Performance (LightGBM)</h3>
+              <p>Trained on 80% of the data, evaluated on a held-out 20% test split.</p>
+              <table class="results"><tr><th>Metric</th><th>Value</th></tr><tr><td>Accuracy</td><td class="highlight">~73%</td></tr><tr><td>F1-Macro</td><td>Balanced across 4 classes</td></tr><tr><td>F1-Weighted</td><td>Accounts for Sev-2 dominance</td></tr><tr><td>AUC</td><td>Strong ranking consistency</td></tr></table>
+              <h3 style="margin-top:14px;">Feature Importance (Top 5)</h3>
+              <table class="results"><tr><th>Feature</th><th>Role</th></tr><tr><td>Distance (mi)</td><td class="highlight">Strongest predictor</td></tr><tr><td>H3 Location</td><td>Spatial context matters</td></tr><tr><td>Hour of Day</td><td>Night = higher severity</td></tr><tr><td>Junction</td><td class="highlight-red">Increases severity</td></tr><tr><td>Traffic Signal</td><td class="highlight-green">Decreases severity</td></tr></table>
+            </div>
+            <div style="flex: 1;">
+              <h3>Sensitivity Analysis</h3>
+              <p>Isolated individual conditions to measure severity shifts:</p>
+              <table class="results"><tr><th>Condition</th><th>Effect on Severity</th></tr><tr><td>Night time</td><td class="highlight-red">&uarr; Increases</td></tr><tr><td>Rain</td><td class="highlight-red">&uarr; Increases</td></tr><tr><td>Severe Storm</td><td class="highlight-red">&uarr;&uarr; Largest increase</td></tr><tr><td>Add Traffic Signal</td><td class="highlight-green">&darr; Decreases</td></tr><tr><td>Add Stop Sign</td><td class="highlight-green">&darr; Decreases</td></tr><tr><td>Add Crossing</td><td class="highlight-green">&darr; Decreases</td></tr><tr><td>Add Junction</td><td class="highlight-red">&uarr; Increases</td></tr></table>
+              <p style="margin-top:10px;">Results align with established road safety research.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-section="comparison">
+          <h2>7. Comparison</h2>
+          <h3>vs. Statistical Models</h3><p>Logit models assume linearity. Our LightGBM captures <strong>non-linear interactions</strong> and spatial dependence via H3.</p>
+          <h3>vs. Neural Networks</h3><p>ANNs sacrifice interpretability. LightGBM provides <strong>built-in feature importances</strong>.</p>
+          <h3>vs. Existing Dashboards</h3><p>Traditional dashboards are <strong>descriptive</strong> and single-region. Ours is <strong>prescriptive</strong> and covers <strong>all 49 states</strong>.</p>
+          <h3>vs. Castellani et al.</h3><p>They use SHAP on Ohio data. We use native importances + a <strong>real-time interactive simulator</strong>.</p>
+        </div>
+
+        <div class="card span-2" data-section="conclusions">
+          <h2>8. Conclusions &amp; Future Work</h2>
+          <div style="display: flex; gap: 24px;">
+            <div style="flex: 1.2;"><h3>Key Takeaways</h3><ul>
+              <li><strong>End-to-end pipeline</strong> from 7.7M raw records to interactive geospatial dashboard with real-time What-If simulation.</li>
+              <li>H3 binning + empirical multipliers enable <strong>instant scenario exploration</strong>.</li>
+              <li><strong>Delta View</strong> uniquely visualizes intervention impact.</li>
+              <li>Infrastructure features measurably reduce severity, supporting <strong>evidence-based investment</strong>.</li>
+            </ul></div>
+            <div style="flex: 0.8;"><h3>Limitations &amp; Future Work</h3><ul>
+              <li>Severity 2 dominance (~80%) limits minority-class accuracy.</li>
+              <li>Empirical multipliers vs. causal models.</li>
+              <li>Future: real-time feeds, user studies, county-level policy.</li>
+            </ul></div>
+          </div>
+        </div>
+
+        <div class="card" data-section="references">
+          <h2>References</h2>
+          <div class="references">
+            <p>[1] Moosavi et al., "A Countrywide Traffic Accident Dataset," 2019.</p>
+            <p>[2] Andrienko et al., "Geovisual analytics for spatial decision support," 2007.</p>
+            <p>[3] Savolainen et al., "Statistical analysis of highway crash-injury severities," 2011.</p>
+            <p>[4] Abdelwahab &amp; Abdel-Aty, "ANN models to predict driver injury severity," 2001.</p>
+            <p>[5] Castellani et al., "Predicting traffic crash severity," 2025.</p>
+            <p>[6] Ahmed et al., "Road traffic injuries," 2023.</p>
+            <p>[7] Fisa et al., "Road safety interventions," 2022.</p>
+            <p>[8] Hauer et al., "Empirical Bayes method," 2002.</p>
+            <p>[9] Park et al., "Bayesian before-after evaluation," 2010.</p>
+            <p>[10] Ziakopoulos et al., "Spatial approaches in road safety," 2020.</p>
+            <p>[11] H3 Geo Docs, Uber Technologies.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>CSE 6242 &middot; Data and Visual Analytics &middot; Spring 2026 &middot; Georgia Institute of Technology</span>
+        <span>Dataset: <a href="#">kaggle.com/sobhanmoosavi/us-accidents</a></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="teleprompter"></div>
+<div id="hud">
+  <span class="step-label" id="hud-label">Press Auto to start</span>
+  <div class="progress-bar"><div class="progress-fill" id="hud-progress"></div></div>
+  <span class="timer" id="hud-timer">0:00</span>
+  <button class="play-btn" id="auto-btn" onclick="toggleAuto()">Auto (3:00)</button>
+  <span class="nav-hint">left/right = manual | Space = pause | R = reset</span>
+</div>
+
+<script>
+/*
+ * Smooth continuous pan/zoom — the camera never stops moving.
+ * Each keyframe defines a camera target (x, y, scale).
+ * The camera continuously interpolates between keyframes over the
+ * full timeline using cubic ease-in-out, creating a documentary-style
+ * Ken Burns effect across the poster.
+ */
+
+const KEYFRAMES = [
+  // ── HEADER (0–8s) ─────────────────────────
+  { t: 0,   x: 1440, y: 188,  scale: 0.65, section: 'header',
+    script: '"Hi, I\'m [Name] from Team 096. Our project is the US Accident Severity Dashboard."' },
+  { t: 5,   x: 800,  y: 188,  scale: 0.80, section: 'header',
+    script: '' },
+
+  // ── MOTIVATION (8–22s) ────────────────────
+  { t: 8,   x: 512,  y: 584,  scale: 1.05, section: 'motivation',
+    script: 'Traffic accidents kill <span class="keyword">1.35 million people</span> annually. Current tools are <span class="keyword">reactive</span>. Planners need to ask "what if" <span class="keyword">proactively</span>.' },
+  { t: 22,  x: 512,  y: 584,  scale: 1.05, section: 'motivation',
+    script: '' },
+
+  // ── DATA (22–35s) ─────────────────────────
+  { t: 25,  x: 1440, y: 584,  scale: 1.05, section: 'data',
+    script: '<span class="keyword">7.7 million records</span> across 49 states, 2016–2023. 1.5 GB CSV from Kaggle. Features: severity, weather, time, infrastructure booleans.' },
+  { t: 35,  x: 2368, y: 584,  scale: 1.05, section: 'techstack',
+    script: '' },
+
+  // ── APPROACHES (35–55s) ───────────────────
+  { t: 39,  x: 1440, y: 1063, scale: 0.72, section: 'approaches',
+    script: '<span class="keyword">H3 hexagonal binning</span>, <span class="keyword">LightGBM</span> for severity prediction, <span class="keyword">empirical multipliers</span> for real-time What-If. New: <span class="keyword">Delta View</span> — green = improvement, red = worsening.' },
+  { t: 55,  x: 1600, y: 1100, scale: 0.78, section: 'approaches',
+    script: '' },
+
+  // ── DASHBOARD HERO (55–80s) ───────────────
+  { t: 60,  x: 1440, y: 1687, scale: 0.72, section: 'dashboard',
+    script: 'Three modes: <span class="keyword">Historical</span> map, <span class="keyword">What-If</span> with rain simulation, <span class="keyword">Delta View</span> showing severity worsening in red.' },
+  { t: 70,  x: 1440, y: 1687, scale: 0.90, section: 'dashboard',
+    script: '' },
+  { t: 76,  x: 2200, y: 1687, scale: 0.90, section: 'dashboard',
+    script: '' },
+
+  // ── DASHBOARD DETAIL STRIP (80–90s) ───────
+  { t: 80,  x: 1440, y: 2215, scale: 0.85, section: 'dashboard',
+    script: 'Zoomed-in views: state-level filtering, severity distribution, hourly trends, and simulation impact charts.' },
+  { t: 90,  x: 1440, y: 2215, scale: 0.88, section: 'dashboard',
+    script: '' },
+
+  // ── RESULTS (90–115s) ─────────────────────
+  { t: 95,  x: 1440, y: 2933, scale: 0.78, section: 'results',
+    script: '<span class="keyword">~73% accuracy</span>. Top features: <span class="keyword">distance</span>, <span class="keyword">H3 location</span>. <span class="keyword">Traffic signals decrease</span> severity; <span class="keyword">junctions increase</span> it. Results match established safety research.' },
+  { t: 108, x: 1100, y: 2933, scale: 0.90, section: 'results',
+    script: '' },
+
+  // ── COMPARISON (115–135s) ─────────────────
+  { t: 115, x: 2368, y: 2933, scale: 1.05, section: 'comparison',
+    script: 'vs. <span class="keyword">logit models</span>: non-linear interactions. vs. <span class="keyword">ANNs</span>: interpretability. vs. <span class="keyword">existing dashboards</span>: prescriptive + nationwide.' },
+  { t: 135, x: 2368, y: 2933, scale: 1.05, section: 'comparison',
+    script: '' },
+
+  // ── CONCLUSIONS (135–165s) ────────────────
+  { t: 140, x: 1440, y: 3515, scale: 0.78, section: 'conclusions',
+    script: '<span class="keyword">End-to-end pipeline</span> → interactive dashboard with What-If. <span class="keyword">Delta View</span> shows where interventions help. Infrastructure reduces severity.' },
+  { t: 155, x: 976,  y: 3515, scale: 0.92, section: 'conclusions',
+    script: '' },
+
+  // ── OUTRO — zoom out to full poster (165–181s) ──
+  { t: 165, x: 1440, y: 1920, scale: 0.55, section: 'header',
+    script: 'Thank you.' },
+  { t: 175, x: 1440, y: 188,  scale: 0.65, section: 'header',
+    script: '' },
+  { t: 181, x: 1440, y: 188,  scale: 0.65, section: 'header',
+    script: '' },
+];
+
+const TOTAL_DURATION = 181;
+
+const wrap = document.getElementById('poster-wrap');
+const hudLabel = document.getElementById('hud-label');
+const hudProgress = document.getElementById('hud-progress');
+const hudTimer = document.getElementById('hud-timer');
+const teleprompter = document.getElementById('teleprompter');
+const autoBtn = document.getElementById('auto-btn');
+
+let animStart = null;
+let animRunning = false;
+let animPaused = false;
+let pausedAt = 0;
+let animFrame = null;
+let lastSection = '';
+let lastScript = '';
+
+function ease(t) {
+  return t * t * (3 - 2 * t);
+}
+
+function lerpCam(elapsed) {
+  let i = 0;
+  while (i < KEYFRAMES.length - 1 && KEYFRAMES[i + 1].t <= elapsed) i++;
+  if (i >= KEYFRAMES.length - 1) return KEYFRAMES[KEYFRAMES.length - 1];
+
+  const a = KEYFRAMES[i];
+  const b = KEYFRAMES[i + 1];
+  const seg = b.t - a.t;
+  const t = seg > 0 ? ease(Math.min(1, (elapsed - a.t) / seg)) : 1;
+
+  return {
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
+    scale: a.scale + (b.scale - a.scale) * t,
+    section: t < 0.5 ? a.section : b.section,
+    script: b.script || a.script,
+  };
+}
+
+function applyCamera(cam) {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const s = cam.scale * (vw / 2880);
+  const pw = 2880 * s;
+  const ph = 3840 * s;
+
+  let tx = vw / 2 - cam.x * s;
+  let ty = vh / 2 - cam.y * s;
+
+  if (pw >= vw) { tx = Math.min(0, Math.max(vw - pw, tx)); }
+  else          { tx = (vw - pw) / 2; }
+  if (ph >= vh) { ty = Math.min(0, Math.max(vh - ph, ty)); }
+  else          { ty = (vh - ph) / 2; }
+
+  wrap.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+
+  document.querySelectorAll('[data-section]').forEach(el => el.classList.remove('active-section'));
+  const active = document.querySelector(`[data-section="${cam.section}"]`);
+  if (active) active.classList.add('active-section');
+}
+
+function getActiveKeyframe(elapsed) {
+  for (let i = KEYFRAMES.length - 1; i >= 0; i--) {
+    if (KEYFRAMES[i].t <= elapsed && KEYFRAMES[i].script) return KEYFRAMES[i];
+  }
+  return KEYFRAMES[0];
+}
+
+function formatTime(s) {
+  return `${Math.floor(s / 60)}:${String(Math.floor(s) % 60).padStart(2, '0')}`;
+}
+
+function animLoop(now) {
+  if (!animRunning || animPaused) return;
+  if (!animStart) animStart = now;
+
+  const elapsed = pausedAt + (now - animStart) / 1000;
+  if (elapsed >= TOTAL_DURATION) {
+    animRunning = false;
+    autoBtn.textContent = 'Auto (3:00)';
+    autoBtn.classList.remove('playing');
+    return;
+  }
+
+  const cam = lerpCam(elapsed);
+  applyCamera(cam);
+
+  hudTimer.textContent = formatTime(elapsed);
+  const secs = elapsed;
+  hudTimer.className = secs >= 170 ? 'timer danger' : secs >= 150 ? 'timer warning' : 'timer';
+  hudProgress.style.width = `${(elapsed / TOTAL_DURATION) * 100}%`;
+
+  const kf = getActiveKeyframe(elapsed);
+  if (kf.section !== lastSection) {
+    lastSection = kf.section;
+    const stepNum = ['header','motivation','data','techstack','approaches','dashboard','results','comparison','conclusions'].indexOf(kf.section) + 1;
+    hudLabel.textContent = `${stepNum}/8  ${kf.section.charAt(0).toUpperCase() + kf.section.slice(1)}`;
+  }
+  if (kf.script && kf.script !== lastScript) {
+    lastScript = kf.script;
+    teleprompter.innerHTML = kf.script;
+    teleprompter.style.opacity = '1';
+  }
+
+  animFrame = requestAnimationFrame(animLoop);
+}
+
+function toggleAuto() {
+  if (animRunning) {
+    if (animPaused) {
+      animPaused = false;
+      animStart = null;
+      animFrame = requestAnimationFrame(animLoop);
+      autoBtn.textContent = 'Pause';
+    } else {
+      animPaused = true;
+      pausedAt += (performance.now() - (animStart || performance.now())) / 1000;
+      cancelAnimationFrame(animFrame);
+      autoBtn.textContent = 'Resume';
+    }
+  } else {
+    animRunning = true;
+    animPaused = false;
+    animStart = null;
+    pausedAt = 0;
+    lastSection = '';
+    lastScript = '';
+    autoBtn.textContent = 'Pause';
+    autoBtn.classList.add('playing');
+    animFrame = requestAnimationFrame(animLoop);
+  }
+}
+
+function resetAll() {
+  animRunning = false;
+  animPaused = false;
+  pausedAt = 0;
+  cancelAnimationFrame(animFrame);
+  lastSection = '';
+  lastScript = '';
+  autoBtn.textContent = 'Auto (3:00)';
+  autoBtn.classList.remove('playing');
+  hudTimer.textContent = '0:00';
+  hudTimer.className = 'timer';
+  hudLabel.textContent = 'Press Auto to start';
+  hudProgress.style.width = '0%';
+  teleprompter.innerHTML = 'Press <strong>Auto</strong> for smooth 3-minute walkthrough, or <strong>right arrow</strong> for manual.<br><span class="time-hint">Camera pans continuously — Ken Burns style</span>';
+  applyCamera({ x: 0, y: 0, scale: 0.34, section: 'header' });
+}
+
+// Manual step via keyboard (jumps to keyframe positions)
+function jumpToTime(t) {
+  animRunning = false;
+  cancelAnimationFrame(animFrame);
+  autoBtn.textContent = 'Auto (3:00)';
+  autoBtn.classList.remove('playing');
+  pausedAt = t;
+  const cam = lerpCam(t);
+  applyCamera(cam);
+  hudTimer.textContent = formatTime(t);
+  const kf = getActiveKeyframe(t);
+  if (kf.script) teleprompter.innerHTML = kf.script;
+}
+
+// goToStep for the recording script compatibility
+function goToStep(idx) {
+  if (idx < 0 || idx >= KEYFRAMES.length) return;
+  jumpToTime(KEYFRAMES[idx].t);
+}
+
+// Expose for recording: advance animation by dt seconds
+function advanceFrame(dt) {
+  pausedAt += dt;
+  const cam = lerpCam(pausedAt);
+  applyCamera(cam);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ') { e.preventDefault(); toggleAuto(); }
+  else if (e.key === 'r' || e.key === 'R') { resetAll(); }
+  else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    let next = KEYFRAMES.find(k => k.t > (pausedAt || 0) + 1 && k.script);
+    if (next) jumpToTime(next.t);
+  }
+  else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    let prev = [...KEYFRAMES].reverse().find(k => k.t < (pausedAt || 0) - 1 && k.script);
+    if (prev) jumpToTime(prev.t);
+  }
+});
+
+resetAll();
+</script>
+</body>
+</html>
