@@ -96,7 +96,7 @@
 | **Data (10%)** | Step 3 — source, size, features |
 | **Results (25%)** | Step 6 — accuracy, features, sensitivity |
 | **Comparison (part of Results)** | Step 7 — vs. logit, ANNs, dashboards with citations |
-| **Delivery (10%)** | Timed to 2:56, clear pacing |
+| **Delivery (10%)** | Timed to 2:45, clear pacing |
 | **Poster Design (25%)** | Visible throughout — smooth zooms show layout |
 
 ## Fact-Check Notes

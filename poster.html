@@ -29,12 +29,12 @@
   .poster {
     width: 30in;
     min-height: 40in;
-    padding: 0.6in;
+    padding: 0.5in;
     background: #FAFAF7;
     box-shadow: 0 4px 40px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
-    gap: 0.25in;
+    gap: 0.15in;
     position: relative;
   }
 
@@ -42,7 +42,7 @@
   .header {
     background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
     border-radius: 16px;
-    padding: 0.45in 0.5in;
+    padding: 0.35in 0.5in;
     color: white;
     display: flex;
     align-items: center;
@@ -86,14 +86,14 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto auto auto auto;
-    gap: 0.2in;
+    gap: 0.15in;
   }
 
   /* ===== SECTION CARDS ===== */
   .card {
     background: white;
     border-radius: 12px;
-    padding: 0.28in 0.3in;
+    padding: 0.22in 0.28in;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     border: 1px solid #e2e0db;
   }
@@ -102,8 +102,8 @@
     font-size: 22pt;
     font-weight: 800;
     color: #1a365d;
-    margin-bottom: 10px;
-    padding-bottom: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 3px;
     border-bottom: 3px solid #3182ce;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -144,16 +144,16 @@
   .screenshot-grid-hero {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.15in;
-    margin-top: 10px;
+    gap: 0.12in;
+    margin-top: 8px;
   }
 
   .screenshot-grid-detail {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     grid-auto-rows: 1fr;
-    gap: 0.12in;
-    margin-top: 0.15in;
+    gap: 0.10in;
+    margin-top: 0.10in;
   }
 
   .screenshot-item {
@@ -170,8 +170,16 @@
     width: 100%;
     display: block;
     object-fit: cover;
-    flex: 1;
-    min-height: 0;
+  }
+
+  .screenshot-grid-hero .screenshot-item img {
+    aspect-ratio: 2 / 1;
+  }
+
+  .screenshot-grid-detail .screenshot-item img {
+    aspect-ratio: 2 / 1;
+    object-fit: contain;
+    background: #f0f4f8;
   }
 
   .screenshot-item .caption {
@@ -329,7 +337,7 @@
     background: #1a365d;
     color: white;
     border-radius: 12px;
-    padding: 12px 0.5in;
+    padding: 8px 0.5in;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -369,6 +377,12 @@
       <p>Road traffic accidents kill <strong>1.35 million people annually</strong> and are the leading cause of death for ages 5&ndash;29 globally. Existing road safety processes remain <strong>reactive</strong>&mdash;analyzing accidents only after they occur.</p>
       <h3>Why should we care?</h3>
       <p>Transportation planners and safety agencies lack tools to explore <em>what would happen if</em> conditions changed. Our project fills this gap with an interactive simulator that lets stakeholders <strong>proactively identify</strong> high-risk areas and test interventions <strong>before</strong> deploying resources.</p>
+      <h3>Key Questions</h3>
+      <ul>
+        <li>How does <strong>weather</strong> (rain, storms) shift accident severity across regions?</li>
+        <li>Do <strong>infrastructure features</strong> (signals, stop signs) measurably reduce severity?</li>
+        <li>Where would interventions have the <strong>greatest impact</strong>, and can we explore this in <strong>real time</strong>?</li>
+      </ul>
     </div>
 
     <div class="card">
@@ -434,7 +448,7 @@
         <div style="flex: 1;">
           <h3>What are our approaches?</h3>
           <ul>
-            <li><strong>H3 Hexagonal Spatial Binning:</strong> We partition the US into hexagonal cells at resolution 3 using Uber's H3 index. Hexagons provide uniform adjacency (every neighbor shares an identical spatial relationship), eliminating directional bias found in square grids.</li>
+            <li><strong>H3 Hexagonal Binning:</strong> Uber's H3 index at <strong>res-3</strong> (national) and <strong>res-5</strong> (state drill-down) &mdash; the dashboard switches dynamically. Hexagons provide uniform adjacency, eliminating directional bias of square grids.</li>
             <li><strong>LightGBM Severity Prediction:</strong> A gradient-boosted decision tree model trained on the full dataset to predict accident severity (1&ndash;4) from environmental, temporal, and infrastructure features.</li>
             <li><strong>Empirical Severity Multipliers:</strong> Per-feature ratios of mean severity (feature present vs. absent) power the What-If simulator, allowing real-time scenario exploration without re-running the model.</li>
           </ul>
@@ -443,7 +457,7 @@
           <h3>What is new in our approach?</h3>
           <ul>
             <li><strong>What-If Simulator:</strong> Users toggle weather, time-of-day, and infrastructure conditions to see how predicted severity shifts across all visible hexes simultaneously&mdash;transforming the dashboard from a descriptive tool into a <em>prescriptive</em> one.</li>
-            <li><strong>Delta View:</strong> A diverging green&ndash;grey&ndash;red color scale shows the <em>change</em> in severity from baseline, making it immediately obvious where interventions help most (green) or hurt (red).</li>
+            <li><strong>Delta View:</strong> Diverging green&ndash;grey&ndash;red color + <strong>3D hex elevation</strong> (30&times; scale) encode severity <em>change</em> from baseline &mdash; immediately obvious where interventions help or hurt.</li>
             <li><strong>Nationwide scale:</strong> Unlike prior work confined to single cities or regions, our system covers all 49 states with 7.7M records, using chunked processing and Parquet storage to handle scale.</li>
           </ul>
         </div>
@@ -453,7 +467,7 @@
             <li>Empirical multipliers are computed from <strong>7.7M real observations</strong>, grounding simulations in actual statistical relationships rather than theoretical assumptions.</li>
             <li>H3 binning aggregates noisy point data into meaningful spatial units, reducing visual clutter while preserving geographic patterns.</li>
             <li>LightGBM captures <strong>non-linear interactions</strong> between features (e.g., rain + night + junction) that traditional logit models cannot model, while still providing interpretable feature importance scores.</li>
-            <li>Interactive visualization follows Andrienko et al.'s [2] geovisual analytics framework: dynamic exploration over static reporting.</li>
+            <li>Design follows Andrienko et al.'s [2] geovisual analytics framework: dynamic exploration over static reporting.</li>
           </ul>
         </div>
       </div>
@@ -461,22 +475,22 @@
 
     <!-- ===== ROW 3: Dashboard Screenshots (spanning full width) ===== -->
 
-    <div class="card span-3" style="padding-bottom: 0.2in;">
+    <div class="card span-3" style="padding-bottom: 0.1in;">
       <h2>5. Interactive Dashboard</h2>
 
       <!-- Tier 1: Three hero views showing the three dashboard modes -->
       <div class="screenshot-grid-hero">
         <div class="screenshot-item hero">
           <img src="assets/crops/hero_historical.png" alt="Historical View">
-          <div class="caption"><span class="mode-badge badge-hist">Historical</span> National overview &mdash; 688 H3 hexes, 7.7M accidents</div>
+          <div class="caption"><span class="mode-badge badge-hist">Historical</span> National view &mdash; H3 res-3 hexes, 10+ filters, severity colormap</div>
         </div>
         <div class="screenshot-item hero">
           <img src="assets/crops/hero_whatif.png" alt="What-If Simulation">
-          <div class="caption"><span class="mode-badge badge-whatif">What-If</span> Rain simulation on Georgia (severity +3%)</div>
+          <div class="caption"><span class="mode-badge badge-whatif">What-If</span> Rain on Georgia &mdash; KPI deltas show +3% severity shift</div>
         </div>
         <div class="screenshot-item hero">
           <img src="assets/crops/hero_delta.png" alt="Delta View">
-          <div class="caption"><span class="mode-badge badge-delta">Delta</span> Rain + Night &mdash; red = worsening severity</div>
+          <div class="caption"><span class="mode-badge badge-delta">Delta</span> Rain + Night &mdash; 3D hex height = magnitude of change</div>
         </div>
       </div>
 
@@ -484,11 +498,11 @@
       <div class="screenshot-grid-detail">
         <div class="screenshot-item">
           <img src="assets/crops/map_georgia.png" alt="Georgia state view">
-          <div class="caption">State-level drill-down (Georgia)</div>
+          <div class="caption">State drill-down (H3 res-5, Georgia)</div>
         </div>
         <div class="screenshot-item">
           <img src="assets/crops/chart_severity.png" alt="Severity Distribution">
-          <div class="caption">Severity distribution (79.7% moderate)</div>
+          <div class="caption">Gaussian-mixture severity curve</div>
         </div>
         <div class="screenshot-item">
           <img src="assets/crops/chart_hour.png" alt="Accidents by Hour">
@@ -532,18 +546,17 @@
         </div>
         <div style="flex: 1;">
           <h3>Sensitivity Analysis</h3>
-          <p>Holding spatial features at national medians, we isolated individual conditions to measure severity shifts:</p>
           <table class="results">
-            <tr><th>Condition</th><th>Effect on Severity</th></tr>
-            <tr><td>Night time</td><td class="highlight-red">&uarr; Increases</td></tr>
-            <tr><td>Rain</td><td class="highlight-red">&uarr; Increases</td></tr>
-            <tr><td>Severe Storm</td><td class="highlight-red">&uarr;&uarr; Largest increase</td></tr>
-            <tr><td>Add Traffic Signal</td><td class="highlight-green">&darr; Decreases</td></tr>
-            <tr><td>Add Stop Sign</td><td class="highlight-green">&darr; Decreases</td></tr>
-            <tr><td>Add Crossing</td><td class="highlight-green">&darr; Decreases</td></tr>
-            <tr><td>Add Junction</td><td class="highlight-red">&uarr; Increases</td></tr>
+            <tr><th>Condition</th><th>Multiplier</th><th>Severity Shift</th></tr>
+            <tr><td>Severe Storm</td><td>1.042</td><td class="highlight-red">+4.2%</td></tr>
+            <tr><td>Add Junction</td><td>1.042</td><td class="highlight-red">+4.2%</td></tr>
+            <tr><td>Rain</td><td>1.030</td><td class="highlight-red">+3.0%</td></tr>
+            <tr><td>Night time</td><td>1.004</td><td class="highlight-red">+0.4%</td></tr>
+            <tr><td>Add Stop Sign</td><td>0.937</td><td class="highlight-green">&minus;6.3%</td></tr>
+            <tr><td>Add Traffic Signal</td><td>0.936</td><td class="highlight-green">&minus;6.5%</td></tr>
+            <tr><td>Add Crossing</td><td>0.925</td><td class="highlight-green">&minus;7.5%</td></tr>
           </table>
-          <p style="margin-top:10px;">These results align with established road safety research, validating that the model captures known risk factors correctly.</p>
+          <p style="margin-top:6px; font-size:14pt;">Multipliers from <strong>weights.json</strong> &mdash; validated against established road safety literature.</p>
         </div>
       </div>
     </div>
@@ -558,6 +571,14 @@
       <p>Traditional traffic dashboards are <strong>descriptive</strong> (showing past data) and confined to single regions. Our tool is <strong>prescriptive</strong> (what-if simulation) and covers <strong>all 49 states</strong> at once.</p>
       <h3>vs. Castellani et al. [5]</h3>
       <p>Their work uses SHAP values for post-hoc interpretation on Ohio data. We use LightGBM's native importances for lower computational cost and add a <strong>real-time interactive simulator</strong> on top.</p>
+      <table class="results" style="margin-top:14px;">
+        <tr><th>Capability</th><th>Logit</th><th>ANN</th><th>Ours</th></tr>
+        <tr><td>Non-linear interactions</td><td class="highlight-red">✗</td><td class="highlight-green">✓</td><td class="highlight-green">✓</td></tr>
+        <tr><td>Interpretable</td><td class="highlight-green">✓</td><td class="highlight-red">✗</td><td class="highlight-green">✓</td></tr>
+        <tr><td>What-If simulation</td><td class="highlight-red">✗</td><td class="highlight-red">✗</td><td class="highlight-green">✓</td></tr>
+        <tr><td>Nationwide (49 states)</td><td class="highlight-red">✗</td><td class="highlight-red">✗</td><td class="highlight-green">✓</td></tr>
+        <tr><td>Real-time interactive</td><td class="highlight-red">✗</td><td class="highlight-red">✗</td><td class="highlight-green">✓</td></tr>
+      </table>
     </div>
 
     <!-- ===== ROW 5: Conclusions / References ===== -->
@@ -575,11 +596,18 @@
           </ul>
         </div>
         <div style="flex: 0.8;">
-          <h3>Limitations &amp; Future Work</h3>
+          <h3>Limitations</h3>
           <ul>
             <li>Severity 2 dominance (~80% of records) limits minority-class prediction accuracy.</li>
             <li>What-If multipliers are empirical averages; a causal model would provide stronger policy recommendations.</li>
-            <li>Future: integrate real-time traffic feeds, add user study evaluation, and extend to county-level policy recommendations.</li>
+            <li>Reporting bias in the source data: minor accidents are under-reported in some states.</li>
+          </ul>
+          <h3>Future Work</h3>
+          <ul>
+            <li>Integrate <strong>real-time traffic feeds</strong> for live severity predictions.</li>
+            <li>Add <strong>user study evaluation</strong> with transportation planners to validate utility.</li>
+            <li>Extend to <strong>county-level policy recommendations</strong> with cost-benefit analysis.</li>
+            <li>Explore <strong>causal inference</strong> methods (e.g., propensity scoring) for stronger intervention claims.</li>
           </ul>
         </div>
       </div>
@@ -588,17 +616,17 @@
     <div class="card">
       <h2>References</h2>
       <div class="references">
-        <p>[1] Moosavi et al., "A Countrywide Traffic Accident Dataset," 2019.</p>
-        <p>[2] Andrienko et al., "Geovisual analytics for spatial decision support," 2007.</p>
-        <p>[3] Savolainen et al., "Statistical analysis of highway crash-injury severities," 2011.</p>
-        <p>[4] Abdelwahab &amp; Abdel-Aty, "ANN models to predict driver injury severity," 2001.</p>
-        <p>[5] Castellani et al., "Predicting traffic crash severity through feature selection," 2025.</p>
-        <p>[6] Ahmed et al., "Road traffic injuries: A neglected global health issue," 2023.</p>
-        <p>[7] Fisa et al., "Systematic review of road safety interventions," 2022.</p>
-        <p>[8] Hauer et al., "Estimating safety by the Empirical Bayes method," 2002.</p>
-        <p>[9] Park et al., "Fully Bayesian multivariate before&ndash;after evaluation," 2010.</p>
-        <p>[10] Ziakopoulos et al., "A review of spatial approaches in road safety," 2020.</p>
-        <p>[11] H3 Geo Documentation, Uber Technologies.</p>
+        <p>[1] Moosavi et al., "A Countrywide Traffic Accident Dataset," <em>arXiv preprint</em>, 2019.</p>
+        <p>[2] Andrienko et al., "Geovisual analytics for spatial decision support," <em>Int. J. Geographical Info. Sci.</em>, 2007.</p>
+        <p>[3] Savolainen et al., "Statistical analysis of highway crash-injury severities," <em>Accident Analysis &amp; Prevention</em>, 2011.</p>
+        <p>[4] Abdelwahab &amp; Abdel-Aty, "ANN models to predict driver injury severity," <em>J. Transportation Eng.</em>, 2001.</p>
+        <p>[5] Castellani et al., "Predicting traffic crash severity through feature selection," <em>Safety Science</em>, 2025.</p>
+        <p>[6] Ahmed et al., "Road traffic injuries: A neglected global health issue," <em>Lancet Global Health</em>, 2023.</p>
+        <p>[7] Fisa et al., "Systematic review of road safety interventions," <em>Transport Reviews</em>, 2022.</p>
+        <p>[8] Hauer et al., "Estimating safety by the Empirical Bayes method," <em>Transportation Research Record</em>, 2002.</p>
+        <p>[9] Park et al., "Fully Bayesian multivariate before&ndash;after evaluation," <em>Accident Analysis &amp; Prevention</em>, 2010.</p>
+        <p>[10] Ziakopoulos et al., "A review of spatial approaches in road safety," <em>Accident Analysis &amp; Prevention</em>, 2020.</p>
+        <p>[11] H3 Geo Documentation, Uber Technologies, 2024.</p>
       </div>
     </div>
 
