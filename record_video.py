@@ -22,7 +22,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 FRAME_DIR = os.path.join(ROOT, "_frames")
 OUT_FILE = os.path.join(ROOT, "presentation_video.mp4")
 HTML_FILE = "file://" + os.path.join(ROOT, "presentation.html")
-FPS = 30
+FPS = 15
 DURATION = 181
 W, H = 1920, 1080
 
@@ -80,8 +80,9 @@ print("Encoding video...")
 subprocess.run([
     "ffmpeg", "-y",
     "-framerate", str(FPS),
+    "-start_number", "0",
     "-i", os.path.join(FRAME_DIR, "f_%06d.png"),
-    "-vf", f"scale={W}:{H}:force_original_aspect_ratio=decrease,pad={W}:{H}:-1:-1:color=black",
+    "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
     "-c:v", "libx264", "-preset", "medium", "-crf", "18",
     "-pix_fmt", "yuv420p", "-movflags", "+faststart",
     OUT_FILE,
@@ -90,5 +91,5 @@ subprocess.run([
 size_mb = os.path.getsize(OUT_FILE) / (1024 * 1024)
 print(f"Saved: {OUT_FILE} ({DURATION}s, {size_mb:.1f} MB)")
 
-shutil.rmtree(FRAME_DIR)
+shutil.rmtree(FRAME_DIR, ignore_errors=True)
 print("Done.")
