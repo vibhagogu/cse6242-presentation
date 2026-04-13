@@ -40,21 +40,21 @@
 ## Step 4: Approaches (0:39 – 1:00)
 *Camera zooms out to show full Approaches card, drifts across*
 
-> "Our approach has three core components. First, H3 hexagonal spatial binning — we partition the US into uniform hexagonal cells using Uber's H3 index at resolution 3 nationally and resolution 5 for state-level detail. Second, a LightGBM gradient-boosted model trained on the full dataset to predict severity, capturing non-linear interactions between features. Third, empirical severity multipliers — per-feature ratios of mean severity that power real-time what-if simulation without re-running the model. The Delta View uses a diverging green-grey-red color scale to show exactly where conditions improve or worsen."
+> "Our approach has three core components. First, H3 hexagonal spatial binning — using Uber's H3 index at resolution 3 nationally and resolution 5 for state-level drill-down, switching dynamically. Second, a LightGBM gradient-boosted model trained on the full dataset to predict severity, capturing non-linear interactions. Third, empirical severity multipliers from weights.json — per-feature ratios that power real-time what-if simulation without re-running the model. The Delta View uses a diverging color scale plus 3D hex elevation to show exactly where conditions improve or worsen."
 
 ---
 
 ## Step 5: Dashboard (1:00 – 1:35)
 *Camera zooms into Dashboard hero screenshots, pans across, then down to detail strip*
 
-> "Here are the three dashboard modes in action. On the left, the Historical View — a US map with H3 hexagons colored by mean severity, green for low, red for high. In the center, What-If Mode — here we're simulating rain on Georgia. The rain multiplier of 1.03 pushes average severity from about 2.51 to 2.58, shown by red delta indicators on the metrics. On the right, Delta View — a diverging map showing pervasive red across Georgia under rain-plus-night conditions, meaning severity worsens everywhere. Below, zoomed-in views: state-level filtering, severity distribution, hourly trends, and simulation impact charts."
+> "Here are the three dashboard modes. On the left, the Historical View — H3 hexagons at resolution 3 with over ten filter dimensions including weather, time, and infrastructure. In the center, What-If Mode — simulating rain on Georgia. The rain multiplier of 1.03 pushes severity up 3%, shown by red KPI delta indicators. On the right, Delta View — hex elevation encodes the magnitude of change, so taller hexes mean bigger severity shifts. Below: state-level drill-down at H3 resolution 5, the Gaussian mixture severity curve, hourly trends, and simulation impact charts."
 
 ---
 
 ## Step 6: Results (1:35 – 1:55)
 *Camera pans to Experiments & Results, drifts across tables*
 
-> "LightGBM achieves approximately 73% accuracy on the held-out 20% test set with balanced F1 and strong AUC scores. The top predictive features are distance and H3 spatial location, followed by hour of day. Traffic signals decrease severity — supporting infrastructure investment — while junctions increase it. Our sensitivity analysis confirms that nighttime, rain, and severe storms all worsen severity, while adding traffic signals and stop signs improve it."
+> "LightGBM achieves approximately 73% accuracy on the held-out 20% test set with balanced F1 and strong AUC scores. The top predictive features are distance and H3 spatial location, followed by hour of day. Our sensitivity analysis with specific multipliers: traffic signals reduce severity by 6.5%, crossings by 7.5%. On the risk side, junctions and severe storms each increase severity by 4.2%, and rain by 3%. These multipliers are computed from all 7.7 million observations and validated against established safety research."
 
 ---
 
