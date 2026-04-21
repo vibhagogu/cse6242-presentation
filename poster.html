@@ -388,7 +388,7 @@
     <div class="card">
       <h2>2. Data</h2>
       <h3>Source</h3>
-      <p>US Accidents dataset by Moosavi et al. [1], downloaded from Kaggle. Real-time DOT traffic feeds, weather data, and points of interest integrated across <strong>49 US states</strong>.</p>
+      <p>US Accidents dataset by Moosavi et al. [1], downloaded from Kaggle. Integrates weather data and points of interest across <strong>49 US states</strong>, 2016&ndash;2023.</p>
       <div class="metrics">
         <div class="metric-box">
           <div class="value">7.7M</div>
@@ -456,9 +456,10 @@
         <div style="flex: 1;">
           <h3>What is new in our approach?</h3>
           <ul>
-            <li><strong>What-If Simulator:</strong> Users toggle weather, time-of-day, and infrastructure conditions to see how predicted severity shifts across all visible hexes simultaneously&mdash;transforming the dashboard from a descriptive tool into a <em>prescriptive</em> one.</li>
-            <li><strong>Delta View:</strong> Diverging green&ndash;grey&ndash;red color + <strong>3D hex elevation</strong> (30&times; scale) encode severity <em>change</em> from baseline &mdash; immediately obvious where interventions help or hurt.</li>
-            <li><strong>Nationwide scale:</strong> Unlike prior work confined to single cities or regions, our system covers all 49 states with 7.7M records, using chunked processing and Parquet storage to handle scale.</li>
+            <li><strong>Real-Time Counterfactual Simulation without Model Inference:</strong> Pre-computed empirical multipliers enable instant what-if exploration across all 688 hex cells simultaneously &mdash; live model inference at that scale would be computationally impractical.</li>
+            <li><strong>Spatial Risk Stabilization via H3 + Empirical Bayes:</strong> Per-hex severity is shrunk toward the global mean proportional to sample size (B=50), preventing sparse cells from producing misleading risk spikes &mdash; a statistical guarantee naive averaging cannot provide.</li>
+            <li><strong>Delta-Based Compound Analysis:</strong> Users layer a filter condition (e.g., rain) with a what-if intervention (e.g., stop sign) to identify which locations benefit most from that intervention under that scenario &mdash; not found in standard risk dashboards.</li>
+            <li><strong>Dual-Resolution Dynamic Switching:</strong> The map auto-transitions from res-3 (688-cell national view) to res-5 (state-level detail) without additional data loading, matching spatial resolution to the decision at hand.</li>
           </ul>
         </div>
         <div style="flex: 1;">
@@ -526,13 +527,25 @@
       <div style="display: flex; gap: 0.25in;">
         <div style="flex: 1;">
           <h3>Model Performance (LightGBM)</h3>
-          <p>Trained on 80% of the full dataset, evaluated on a held-out 20% test split with stratified sampling.</p>
+          <p>Trained on 80% of full dataset; evaluated on stratified 20% held-out test set (1.4M records).</p>
           <table class="results">
             <tr><th>Metric</th><th>Value</th></tr>
-            <tr><td>Accuracy</td><td class="highlight">~73%</td></tr>
-            <tr><td>F1-Macro</td><td>Balanced across 4 classes</td></tr>
-            <tr><td>F1-Weighted</td><td>Accounts for Sev-2 dominance</td></tr>
-            <tr><td>AUC</td><td>Strong ranking consistency</td></tr>
+            <tr><td>Accuracy</td><td class="highlight">0.72</td></tr>
+            <tr><td>F1-Macro (primary)</td><td class="highlight">0.50</td></tr>
+            <tr><td>F1-Weighted</td><td>0.76</td></tr>
+            <tr><td>Cohen's Kappa</td><td>0.44 (moderate)</td></tr>
+            <tr><td>AUC-ROC (macro)</td><td class="highlight">0.93</td></tr>
+            <tr><td>AUPRC (macro)</td><td>0.61</td></tr>
+            <tr><td>MAE</td><td>0.39 severity levels</td></tr>
+          </table>
+          <p style="margin-top:6px; font-size:13pt; color:#718096;">F1-Macro weights all 4 classes equally &mdash; the key metric for rare fatal incidents. A majority-class baseline would score 0.78 accuracy but near-zero F1-Macro.</p>
+          <h3 style="margin-top:14px;">Per-Class AUPRC vs. Random Baseline</h3>
+          <table class="results">
+            <tr><th>Class</th><th>AUPRC</th><th>vs. Baseline</th></tr>
+            <tr><td>Sev 1 Minor (0.9%)</td><td>0.42</td><td class="highlight">47&times; above</td></tr>
+            <tr><td>Sev 2 Moderate (80%)</td><td>0.97</td><td>~1.2&times;</td></tr>
+            <tr><td>Sev 3 Serious (17%)</td><td>0.72</td><td class="highlight">4.3&times;</td></tr>
+            <tr><td>Sev 4 Fatal (2.6%)</td><td>0.33</td><td class="highlight">13&times;</td></tr>
           </table>
           <h3 style="margin-top:14px;">Feature Importance (Top 5)</h3>
           <table class="results">
@@ -564,12 +577,12 @@
     <div class="card">
       <h2>7. Comparison</h2>
       <h3>vs. Traditional Statistical Models</h3>
-      <p>Savolainen et al. [3] show that logit/probit models assume linearity and treat crashes as independent events. Our LightGBM model captures <strong>non-linear interactions</strong> and spatial dependence via H3 features.</p>
+      <p>Savolainen et al. [8] show that logit/probit models assume linearity and treat crashes as independent events. Our LightGBM model captures <strong>non-linear interactions</strong> and spatial dependence via H3 features.</p>
       <h3>vs. Neural Networks</h3>
-      <p>Abdelwahab &amp; Abdel-Aty [4] achieve high accuracy with ANNs but sacrifice interpretability. LightGBM provides <strong>built-in feature importances</strong> without needing post-hoc explanation methods.</p>
+      <p>Abdelwahab &amp; Abdel-Aty [9] achieve high accuracy with ANNs but sacrifice interpretability. LightGBM provides <strong>built-in feature importances</strong> without needing post-hoc explanation methods.</p>
       <h3>vs. Existing Dashboards</h3>
       <p>Traditional traffic dashboards are <strong>descriptive</strong> (showing past data) and confined to single regions. Our tool is <strong>prescriptive</strong> (what-if simulation) and covers <strong>all 49 states</strong> at once.</p>
-      <h3>vs. Castellani et al. [5]</h3>
+      <h3>vs. Castellani et al. [10]</h3>
       <p>Their work uses SHAP values for post-hoc interpretation on Ohio data. We use LightGBM's native importances for lower computational cost and add a <strong>real-time interactive simulator</strong> on top.</p>
       <table class="results" style="margin-top:14px;">
         <tr><th>Capability</th><th>Logit</th><th>ANN</th><th>Ours</th></tr>
@@ -616,17 +629,21 @@
     <div class="card">
       <h2>References</h2>
       <div class="references">
-        <p>[1] Moosavi et al., "A Countrywide Traffic Accident Dataset," <em>arXiv preprint</em>, 2019.</p>
+        <p>[1] Ahmed et al., "Road traffic accidental injuries and deaths: A neglected global health issue," <em>Health Science Reports</em>, 2023.</p>
         <p>[2] Andrienko et al., "Geovisual analytics for spatial decision support," <em>Int. J. Geographical Info. Sci.</em>, 2007.</p>
-        <p>[3] Savolainen et al., "Statistical analysis of highway crash-injury severities," <em>Accident Analysis &amp; Prevention</em>, 2011.</p>
-        <p>[4] Abdelwahab &amp; Abdel-Aty, "ANN models to predict driver injury severity," <em>J. Transportation Eng.</em>, 2001.</p>
-        <p>[5] Castellani et al., "Predicting traffic crash severity through feature selection," <em>Safety Science</em>, 2025.</p>
-        <p>[6] Ahmed et al., "Road traffic injuries: A neglected global health issue," <em>Lancet Global Health</em>, 2023.</p>
-        <p>[7] Fisa et al., "Systematic review of road safety interventions," <em>Transport Reviews</em>, 2022.</p>
-        <p>[8] Hauer et al., "Estimating safety by the Empirical Bayes method," <em>Transportation Research Record</em>, 2002.</p>
-        <p>[9] Park et al., "Fully Bayesian multivariate before&ndash;after evaluation," <em>Accident Analysis &amp; Prevention</em>, 2010.</p>
-        <p>[10] Ziakopoulos et al., "A review of spatial approaches in road safety," <em>Accident Analysis &amp; Prevention</em>, 2020.</p>
-        <p>[11] H3 Geo Documentation, Uber Technologies, 2024.</p>
+        <p>[3] Moosavi et al., "A Countrywide Traffic Accident Dataset," <em>arXiv</em>, 2019.</p>
+        <p>[4] Fisa et al., "Effects of interventions for preventing road traffic crashes," <em>BMC Public Health</em>, 2022.</p>
+        <p>[5] Federal Highway Administration, "Safety evaluation of red-light cameras," FHWA-HRT-05-048, 2005.</p>
+        <p>[6] Federal Highway Administration, "Data driven safety analysis &mdash; New Jersey roundabouts."</p>
+        <p>[7] Ghasemi et al., "Roadway infrastructure factors affecting road accidents using interpretable ML," 2025.</p>
+        <p>[8] Savolainen et al., "Statistical analysis of highway crash-injury severities," <em>Accident Analysis &amp; Prevention</em>, 2011.</p>
+        <p>[9] Abdelwahab &amp; Abdel-Aty, "ANN models to predict driver injury severity," <em>Transportation Research Record</em>, 2001.</p>
+        <p>[10] Castellani et al., "Predicting traffic crash severity through feature selection," <em>Safety Science</em>, 2025.</p>
+        <p>[11] Hauer et al., "Estimating safety by the Empirical Bayes method," <em>Transportation Research Record</em>, 2002.</p>
+        <p>[12] Park et al., "Fully Bayesian multivariate before&ndash;after evaluation," <em>Accident Analysis &amp; Prevention</em>, 2010.</p>
+        <p>[13] Uber Technologies, "H3 Documentation," h3geo.org, 2026.</p>
+        <p>[14] Ziakopoulos et al., "A review of spatial approaches in road safety," <em>Accident Analysis &amp; Prevention</em>, 2020.</p>
+        <p>[15] Goel et al., "Effectiveness of road safety interventions: An evidence and gap map," <em>Campbell Systematic Reviews</em>, 2024.</p>
       </div>
     </div>
 
